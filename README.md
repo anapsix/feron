@@ -20,6 +20,14 @@ Usage: feron [arguments]
 ```
 
 
+### Continuously retrieving logs
+
+One can schedule continuous log retrieval, and store them in Elasticsearch for further analysis.
+Or even deploy such process onto K8s cluster.
+The [get-cloudflare-logs][get-cloudflare-logs] repo includes Docker image, and
+Helm chart to do just that.
+
+
 ## Build
 
 ### Locally, for your platform/arch
@@ -36,4 +44,5 @@ make all
 
 [ Link Reference ]::
 [logpull]: https://developers.cloudflare.com/logs/logpull-api/
+[get-cloudflare-logs]: https://github.com/anapsix/get-cloudflare-logs
 
