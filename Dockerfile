@@ -9,7 +9,7 @@ RUN \
 
 ## this stage created final docker image
 FROM alpine:3.11 as release
-COPY --from=build /tmp/feron /feron
+COPY --from=build /tmp/feron /usr/local/bin/feron
 USER nobody
-ENTRYPOINT [ "/feron" ]
+ENTRYPOINT [ "/usr/local/bin/feron" ]
 CMD [ "--help" ]

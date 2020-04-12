@@ -2,7 +2,7 @@ require "option_parser"
 require "http/client"
 require "json"
 
-VERSION = "0.2.0"
+VERSION = "0.2.1"
 
 TIME_AT_LAUNCH = Time.utc.at_beginning_of_minute
 
@@ -35,8 +35,8 @@ parser = OptionParser.new do |op|
   op.on("--start EPOCH", "Timestamp (inclusive) formatted as UNIX EPOCH, must be no more than 7 days back, defaults to 6 minutes ago") { |v| params["start"] = v.to_s }
   op.on("--end EPOCH", "Timestamp (exclusive) formatted as UNIX EPOCH, must be at least 1 minute old, and later than --start, defaults to 1 minute ago") { |v| options["end"] = v.to_s }
   op.on("--exclude-empty", "Exclude empty log fields, defaults to false") { options["remove_empty"] = true }
-  op.on("-h", "--help", "Show this help") { puts op; exit 0 }
-  op.on("-v", "--version", "Display version") { puts "v#{VERSION}"; exit 0 }
+  op.on("-h", "--help", "Show this help") { STDOUT.puts op; exit 0 }
+  op.on("-v", "--version", "Display version") { STDOUT.puts "v#{VERSION}"; exit 0 }
   op.invalid_option do |opt|
     STDERR.puts "ERROR: '#{opt}' is not a valid option."
     STDERR.puts op
@@ -90,7 +90,7 @@ def get_logs(params, config, options = {} of String => String | Int | Bool)
           v.to_s.empty?
         }
       end
-      puts line_hash.to_json
+      STDOUT.puts line_hash.to_json
     end
   end
 end

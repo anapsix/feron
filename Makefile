@@ -21,7 +21,7 @@ OUTPUT:= $(RELEASE_DIR)/$(SW)-$(VERSION)-$(OS)-$(ARCH)
 all: clean releases
 
 releases: version $(TARGET) pack docker
-	docker run -it --rm -v ${PWD}/releases:/app --entrypoint "sh" $(SW):$(VERSION) -c "cp /$(SW) /app/$(SW)-$(VERSION)-linux-amd64"
+	docker run -it --rm -v ${PWD}/releases:/app --entrypoint "sh" $(SW):$(VERSION) -c "cp /usr/local/bin/$(SW) /app/$(SW)-$(VERSION)-linux-amd64"
 
 docker:
 	docker build -t $(SW):$(VERSION) .
