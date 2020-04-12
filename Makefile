@@ -32,7 +32,7 @@ clean:
 	@echo >&2 "cleaned up"
 
 version:
-	@sed -i "" 's/^VERSION.*/VERSION="$(VERSION)"/g' $(TARGET).cr
+	@sed -i "" 's/^VERSION.*/VERSION = "$(VERSION)"/g' $(TARGET).cr
 	@echo "Version set to $(VERSION)"
 
 $(TARGET): % : $(filter-out $(TEMPS), $(OBJ)) %.cr

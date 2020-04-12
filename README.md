@@ -13,7 +13,7 @@ Usage: feron [arguments]
     -c NUM, --count=NUM              Number of log events to retrieve, unset by default
     -f FIELDS, --fields=FIELDS       Comma delimited list of log event fields to include, defaults to whatever API returns by default, set to "all" for all available fields
     --start EPOCH                    Timestamp (inclusive) formatted as UNIX EPOCH, must be no more than 7 days back, defaults to 6 minutes ago
-    --end EPOCH                      Timestamp (inclusive) formatted as UNIX EPOCH, must be at least 1 minute old, and later than --start, defaults to 1 minute ago
+    --end EPOCH                      Timestamp (exclusive) formatted as UNIX EPOCH, must be at least 1 minute old, and later than --start, defaults to 1 minute ago
     --exclude-empty                  Exclude empty log fields, defaults to false
     -h, --help                       Show this help
     -v, --version                    Display version

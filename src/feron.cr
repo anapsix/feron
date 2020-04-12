@@ -2,7 +2,7 @@ require "option_parser"
 require "http/client"
 require "json"
 
-VERSION="0.1.0"
+VERSION = "0.2.0"
 
 TIME_AT_LAUNCH = Time.utc.at_beginning_of_minute
 
@@ -13,7 +13,7 @@ cf = {
 }
 
 params = {
-  "start"  => (TIME_AT_LAUNCH - 5.minutes).to_s("%s"),
+  "start"  => (TIME_AT_LAUNCH - 6.minutes).to_s("%s"),
   "end"    => (TIME_AT_LAUNCH - 1.minutes).to_s("%s"),
   "sample" => "0.01",
 }
@@ -33,7 +33,7 @@ parser = OptionParser.new do |op|
   op.on("-c NUM", "--count=NUM", "Number of log events to retrieve, unset by default") { |v| params["count"] = v.to_s }
   op.on("-f FIELDS", "--fields=FIELDS", "Comma delimited list of log event fields to include, defaults to whatever API returns by default, set to \"all\" for all available fields") { |v| requested_fields = v.to_s }
   op.on("--start EPOCH", "Timestamp (inclusive) formatted as UNIX EPOCH, must be no more than 7 days back, defaults to 6 minutes ago") { |v| params["start"] = v.to_s }
-  op.on("--end EPOCH", "Timestamp (inclusive) formatted as UNIX EPOCH, must be at least 1 minute old, and later than --start, defaults to 1 minute ago") { |v| options["end"] = v.to_s }
+  op.on("--end EPOCH", "Timestamp (exclusive) formatted as UNIX EPOCH, must be at least 1 minute old, and later than --start, defaults to 1 minute ago") { |v| options["end"] = v.to_s }
   op.on("--exclude-empty", "Exclude empty log fields, defaults to false") { options["remove_empty"] = true }
   op.on("-h", "--help", "Show this help") { puts op; exit 0 }
   op.on("-v", "--version", "Display version") { puts "v#{VERSION}"; exit 0 }
