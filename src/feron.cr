@@ -2,7 +2,7 @@ require "option_parser"
 require "http/client"
 require "json"
 
-VERSION = "0.2.1"
+VERSION = "0.3.0"
 
 TIME_AT_LAUNCH = Time.utc.at_beginning_of_minute
 
@@ -29,6 +29,7 @@ parser = OptionParser.new do |op|
   op.on("-z ID", "--zone-id=ID", "Cloudflare Zone ID, defaults to CF_ZONE_ID env value, if present") { |v| cf["zone_id"] = v.to_s }
   op.on("-e EMAIL", "--auth-email=EMAIL", "Cloudflare Auth Email, defaults to CF_AUTH_EMAIL env value, if present") { |v| cf["auth_email"] = v.to_s }
   op.on("-k KEY", "--auth-key=KEY", "Cloudflare Auth Key, defaults to CF_AUTH_KEY env value, if present") { |v| cf["auth_key"] = v.to_s }
+  op.on("-r RAYID", "--rayid=RAYID", "RayID to retrieve log event for. When present, percent, count, and start/end time are ignored") { |v| options["rayid"] = v.to_s }
   op.on("-s PERCENT", "--sample=PERCENT", "Sample percentage (1% = 0.01), defaults to 0.01") { |v| params["sample"] = v.to_s }
   op.on("-c NUM", "--count=NUM", "Number of log events to retrieve, unset by default") { |v| params["count"] = v.to_s }
   op.on("-f FIELDS", "--fields=FIELDS", "Comma delimited list of log event fields to include, defaults to whatever API returns by default, set to \"all\" for all available fields") { |v| requested_fields = v.to_s }
@@ -95,9 +96,46 @@ def get_logs(params, config, options = {} of String => String | Int | Bool)
   end
 end
 
+def get_rayid(params, config, options = {} of String => String | Int | Bool)
+  headers = HTTP::Headers{
+    "X-Auth-Email" => config["auth_email"],
+    "X-Auth-Key"   => config["auth_key"],
+  }
+  rayid = options.delete("rayid")
+  url = "https://api.cloudflare.com/client/v4/zones/#{config["zone_id"]}/logs/rayids/#{rayid}?"
+
+  params = HTTP::Params.encode(params)
+
+  HTTP::Client.get(url + params, headers) do |response|
+    unless response.success?
+      response.consume_body_io
+      STDERR.puts "ERROR: (#{response.status_code}/#{response.status}) #{response.body}"
+      return nil
+    end
+    response.body_io.each_line do |line|
+      line_hash = JSON.parse(line).as_h
+      if options["remove_empty"]
+        line_hash.reject! { |k, v|
+          v.to_s.empty?
+        }
+      end
+      STDOUT.puts line_hash.to_json
+    end
+  end
+end
+
 if requested_fields == "all"
   params["fields"] = get_fields(cf).join(',')
 elsif requested_fields != nil
   params["fields"] = requested_fields.to_s
 end
-get_logs(params, cf, options)
+
+unless options["rayid"]
+  get_logs(params, cf, options)
+else
+  params.delete("start")
+  params.delete("end")
+  params.delete("sample")
+  params.delete("count")
+  get_rayid(params, cf, options)
+end

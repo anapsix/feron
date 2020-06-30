@@ -5,10 +5,11 @@ Tool to retrieve Cloudflare Access logs via [LogPull API][logpull].
 ## Usage
 
 ```
-Usage: feron [arguments]
+Usage: ./feron [arguments]
     -z ID, --zone-id=ID              Cloudflare Zone ID, defaults to CF_ZONE_ID env value, if present
     -e EMAIL, --auth-email=EMAIL     Cloudflare Auth Email, defaults to CF_AUTH_EMAIL env value, if present
     -k KEY, --auth-key=KEY           Cloudflare Auth Key, defaults to CF_AUTH_KEY env value, if present
+    -r RAYID, --rayid=RAYID          RayID to retrieve log event for. When present, percent, count, and start/end time are ignored
     -s PERCENT, --sample=PERCENT     Sample percentage (1% = 0.01), defaults to 0.01
     -c NUM, --count=NUM              Number of log events to retrieve, unset by default
     -f FIELDS, --fields=FIELDS       Comma delimited list of log event fields to include, defaults to whatever API returns by default, set to "all" for all available fields
@@ -19,6 +20,8 @@ Usage: feron [arguments]
     -v, --version                    Display version
 ```
 
+> NOTE: when `-r RAYID, --rayid=RAYID` argument is used, `--start / --end`,
+> `--count`. and `-s PERCENT, --sample=PERCENT` are ignored.
 
 ### Continuously retrieving logs
 
