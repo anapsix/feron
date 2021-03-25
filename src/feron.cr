@@ -2,7 +2,7 @@ require "option_parser"
 require "http/client"
 require "json"
 
-VERSION = "0.3.0"
+VERSION = "0.4.0"
 
 TIME_AT_LAUNCH = Time.utc.at_beginning_of_minute
 
@@ -10,6 +10,7 @@ cf = {
   "zone_id"    => ENV.fetch("CF_ZONE_ID", ""),
   "auth_email" => ENV.fetch("CF_AUTH_EMAIL", ""),
   "auth_key"   => ENV.fetch("CF_AUTH_KEY", ""),
+  "debug"      => "false",
 }
 
 params = {
@@ -22,6 +23,7 @@ requested_fields = nil
 
 options = Hash(String, String | Bool | Int32 | Nil).new(0)
 options["remove_empty"] = false
+options["rayid"] = nil
 
 parser = OptionParser.new do |op|
   op.banner = "Feron retrieves Cloudflare access logs using Logpull API..\n" +
@@ -38,6 +40,7 @@ parser = OptionParser.new do |op|
   op.on("--exclude-empty", "Exclude empty log fields, defaults to false") { options["remove_empty"] = true }
   op.on("-h", "--help", "Show this help") { STDOUT.puts op; exit 0 }
   op.on("-v", "--version", "Display version") { STDOUT.puts "v#{VERSION}"; exit 0 }
+  op.on("-d", "--debug", "Enabled debug") { cf["debug"] = "true" }
   op.invalid_option do |opt|
     STDERR.puts "ERROR: '#{opt}' is not a valid option."
     STDERR.puts op
@@ -55,6 +58,12 @@ if cf["zone_id"].empty?
   STDERR.puts "ERROR: --zone-id must be passed, exiting.."
   STDERR.puts parser
   exit 1
+end
+
+def debug(msg, config) : Nil
+  if config["debug"] == "true"
+    STDERR.puts("DEBUG: #{msg}")
+  end
 end
 
 def get_fields(config)
@@ -79,6 +88,7 @@ def get_logs(params, config, options = {} of String => String | Int | Bool)
   params = HTTP::Params.encode(params)
 
   HTTP::Client.get(url + params, headers) do |response|
+    debug("URL: #{url}#{params}", config)
     unless response.success?
       response.consume_body_io
       STDERR.puts "ERROR: (#{response.status_code}/#{response.status}) #{response.body}"
@@ -107,6 +117,7 @@ def get_rayid(params, config, options = {} of String => String | Int | Bool)
   params = HTTP::Params.encode(params)
 
   HTTP::Client.get(url + params, headers) do |response|
+    debug("URL: #{url}#{params}", config)
     unless response.success?
       response.consume_body_io
       STDERR.puts "ERROR: (#{response.status_code}/#{response.status}) #{response.body}"
@@ -130,12 +141,14 @@ elsif requested_fields != nil
   params["fields"] = requested_fields.to_s
 end
 
-unless options["rayid"]
-  get_logs(params, cf, options)
-else
+if options["rayid"]
+  debug("getting rayid logs", cf)
   params.delete("start")
   params.delete("end")
   params.delete("sample")
   params.delete("count")
   get_rayid(params, cf, options)
+else
+  debug("getting access logs", cf)
+  get_logs(params, cf, options)
 end

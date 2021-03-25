@@ -18,6 +18,7 @@ Usage: ./feron [arguments]
     --exclude-empty                  Exclude empty log fields, defaults to false
     -h, --help                       Show this help
     -v, --version                    Display version
+    -d, --debug                      Enables debug output
 ```
 
 > NOTE: when `-r RAYID, --rayid=RAYID` argument is used, `--start / --end`,
@@ -32,6 +33,13 @@ Helm chart to do just that.
 
 
 ## Build
+
+### Using Shards
+```sh
+shards build --releases
+```
+
+Compiled binary should be available in `./bin/feron`
 
 ### Locally, for your platform/arch
 ```sh

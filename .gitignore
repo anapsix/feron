@@ -2,3 +2,8 @@ releases/
 feron
 *.dwarf
 !releases/.gitkeep
+
+# Ignore Gradle dirs
+build
+.gradle
+gradle

@@ -1,0 +1,15 @@
+name: feron
+version: 0.4.0
+
+description: |
+  feron is a CLI tool to get Cloudflare Access logs via Logpull API.
+
+authors:
+  - Anastas Dancha <anapsix@random.io>
+
+targets:
+  feron:
+    main: src/feron.cr
+
+crystal: '>= 0.36.1'
+license: MIT

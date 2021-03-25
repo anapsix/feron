@@ -16,22 +16,30 @@ TARGET:= src/$(SW)
 RELEASE_DIR:= ./releases
 OUTPUT:= $(RELEASE_DIR)/$(SW)-$(VERSION)-$(OS)-$(ARCH)
 
-.PHONY: all clean version
+.PHONY: all clean version help
 
-all: clean releases
+help: ## Show this help
+	@echo
+	@printf '\033[34mtargets:\033[0m\n'
+	@grep -hE '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) |\
+		sort |\
+		awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-15s\033[0m %s\n", $$1, $$2}'
 
-releases: version $(TARGET) pack docker
-	docker run -it --rm -v ${PWD}/releases:/app --entrypoint "sh" $(SW):$(VERSION) -c "cp /usr/local/bin/$(SW) /app/$(SW)-$(VERSION)-linux-amd64"
+all: clean releases ## Build everything
 
-docker:
+releases: version $(TARGET) pack docker ## Build releases
+	docker run --rm -v ${PWD}/releases:/app --entrypoint "sh" $(SW):$(VERSION) -c "cp /usr/local/bin/$(SW) /app/$(SW)-$(VERSION)-linux-amd64"
+
+docker: ## Build docker image
 	docker build -t $(SW):$(VERSION) .
 	docker tag $(SW):$(VERSION) $(SW):latest
 
-clean:
+clean: ## Clean build directories and files
 	@rm -f $(RELEASE_DIR)/*
 	@echo >&2 "cleaned up"
 
-version:
+version: ## Replace version in code with content of VERSION
+	@sed -i "" 's/^version:.*/version: $(VERSION)/g' shard.yml
 	@sed -i "" 's/^VERSION.*/VERSION = "$(VERSION)"/g' $(TARGET).cr
 	@echo "Version set to $(VERSION)"
 
